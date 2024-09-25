@@ -280,7 +280,7 @@
 <div class="news-item">
     <h3><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h3>
     <p class="meta">
-        Source: {{ item.source }} | Published: {{ item.published }}
+        Source: <b>{{ item.source }}</b> | Published: {{ item.published }}
     </p>
     <div class="news-actions">
         <button onclick="shareNews('{{ item.link }}', '{{ item.title }}')" title="Share">
