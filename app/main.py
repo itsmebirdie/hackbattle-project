@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import feedparser
 from flair.models import TextClassifier
 from flair.data import Sentence
 import concurrent.futures
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -25,12 +26,8 @@ def get_sentiment(title):
     classifier.predict(sentence)
     return sentence.labels[0].value == 'POSITIVE'
 
-def fetch_and_analyze_news(category):
-    feed_url = RSS_FEEDS.get(category, RSS_FEEDS['general'])
-    if not feed_url:
-        return []
-
-    feed = feedparser.parse(feed_url)
+def fetch_and_analyze_news(url):
+    feed = feedparser.parse(url)
     positive_news = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -53,8 +50,24 @@ def fetch_and_analyze_news(category):
 @app.route('/<category>')
 def index(category='general'):
     categories = list(RSS_FEEDS.keys())
-    positive_news = fetch_and_analyze_news(category)
+    search_query = request.args.get('q')
+    
+    if search_query:
+        search_url = f"https://news.google.com/rss/search?q={urllib.parse.quote_plus(search_query)}"
+        positive_news = fetch_and_analyze_news(search_url)
+        return render_template('index.html', news=positive_news, categories=categories, current_category=category, search_query=search_query)
+    
+    feed_url = RSS_FEEDS.get(category, RSS_FEEDS['general'])
+    if not feed_url:
+        return "RSS feed URL not set for this category", 404
+
+    positive_news = fetch_and_analyze_news(feed_url)
     return render_template('index.html', news=positive_news, categories=categories, current_category=category)
+
+@app.route('/search', methods=['POST'])
+def search():
+    search_query = request.form.get('search')
+    return redirect(url_for('index', q=search_query))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -72,6 +72,37 @@
         th {
             background-color: #f2f2f2;
         }
+        .search-form {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .search-form input[type="text"] {
+            padding: 10px;
+            font-size: 17px;
+            border: 1px solid grey;
+            float: left;
+            width: 80%;
+            background: #f1f1f1;
+        }
+        .search-form button {
+            float: left;
+            width: 20%;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            font-size: 17px;
+            border: 1px solid grey;
+            border-left: none;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background: #0b7dda;
+        }
+        .search-form::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +124,12 @@
     </header>
 
     <div class="container">
-        <h2>{{ current_category.capitalize() }} News</h2>
+        <form class="search-form" action="{{ url_for('search') }}" method="post">
+            <input type="text" placeholder="Search news..." name="search" value="{{ search_query if search_query else '' }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <h2>{% if search_query %}Search Results for "{{ search_query }}"{% else %}{{ current_category.capitalize() }} News{% endif %}</h2>
         <table>
             <tr>
                 <th>Title</th>
