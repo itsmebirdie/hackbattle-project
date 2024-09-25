@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Positive Vibes Only</title>
+    <title>Positive News Filter</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -103,23 +103,13 @@
             clear: both;
             display: table;
         }
-        .weather-widget {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .weather-widget img {
-            vertical-align: middle;
-        }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <div id="branding">
-                <h1><span class="highlight">Positive</span> Vibes</h1>
+                <h1><span class="highlight">Positive</span> News Filter</h1>
             </div>
             <nav>
                 <ul>
@@ -138,20 +128,6 @@
             <input type="text" placeholder="Search news..." name="search" value="{{ search_query if search_query else '' }}">
             <button type="submit">Search</button>
         </form>
-
-        <div class="weather-widget"></div>
-            {% if weather %}
-                <h3>Weather in {{ location }}</h3>
-                <p>
-                    <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" alt="{{ weather.description }}">
-                    {{ weather.temperature }}°C, {{ weather.description }}
-                </p>
-            {% elif weather is none %}
-                <p>Weather information is currently unavailable.</p>
-            {% else %}
-                <p>No free weather data source available.</p>
-            {% endif %}
-        </div>
 
         <h2>{% if search_query %}Search Results for "{{ search_query }}"{% else %}{{ current_category.capitalize() }} News{% endif %}</h2>
         <table>
