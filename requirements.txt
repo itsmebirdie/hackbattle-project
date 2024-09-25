@@ -1,3 +1,4 @@
 Flask
 flair
 feedparser
+python-dotenv
