@@ -1,4 +1,4 @@
-# POSITIVE NEWS EXTRACTOR BASED IN PYTHON
+# BASED POSITIVE NEWS EXTRACTOR
 
 this is a website based in Python and Flask, which extracts news from google news's RSS Feed, and filters only the positive ones out from them and shows it to the user.
 
