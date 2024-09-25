@@ -9,3 +9,10 @@ Pawan Kumar
 ...
 ...
 ...
+
+# Documentation:
+
+Install the necessary requirements by:
+```
+pip install -r requirements.txt
+```
