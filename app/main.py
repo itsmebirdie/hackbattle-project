@@ -10,6 +10,7 @@ from functools import wraps
 from flask import request, session
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 
 load_dotenv()
@@ -48,10 +49,13 @@ def fetch_and_analyze_news(url):
             entry = future_to_entry[future]
             try:
                 if future.result():
+                    pub_date = datetime.strptime(entry.published, "%a, %d %b %Y %H:%M:%S %Z")
+                    formatted_date = pub_date.strftime("%Y-%m-%d %H:%M:%S")
                     positive_news.append({
                         'title': entry.title,
                         'link': entry.link,
-                        'source': entry.source.title if hasattr(entry, 'source') else 'Unknown'
+                        'source': entry.source.title if hasattr(entry, 'source') else 'Unknown',
+                        'published': formatted_date
                     })
             except Exception as exc:
                 print(f'Error processing {entry.title}: {exc}')

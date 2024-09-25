@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Positive Vibes Only</title>
+    <title>Positive Vibes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,7 +12,8 @@
             line-height: 1.6;
         }
         .container {
-            width: 80%;
+            width: 90%;
+            max-width: 1200px;
             margin: auto;
             overflow: hidden;
             padding: 0 20px;
@@ -29,17 +30,6 @@
             text-decoration: none;
             text-transform: uppercase;
             font-size: 16px;
-        }
-        header ul {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            overflow: hidden;
-        }
-        header li {
-            float: left;
-            display: inline;
-            padding: 0 20px 0 20px;
         }
         header #branding {
             float: left;
@@ -58,19 +48,6 @@
         header a:hover {
             color: #ffffff;
             font-weight: bold;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
         }
         .search-form {
             margin-top: 20px;
@@ -113,6 +90,137 @@
         .weather-widget img {
             vertical-align: middle;
         }
+        .news-item {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .news-item h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .news-item a {
+            color: #333;
+            text-decoration: none;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+        .news-item .meta {
+            font-size: 0.8em;
+            color: #666;
+        }
+        header nav {
+        float: right;
+        margin-top: 10px;
+    }
+
+    header nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    header nav ul li {
+        display: inline-block;
+        margin-left: 20px;
+    }
+
+    .dropdown {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        header nav {
+            display: none;
+        }
+        .dropdown {
+            display: block;
+            position: relative;
+            float: right;
+        }
+        .dropbtn {
+            background-color: #333;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%; 
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .show {
+            display: block !important;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .news-item {
+        position: relative;
+        padding-right: 80px; /* Make space for buttons */
+    }
+
+    .news-actions {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+    }
+
+    .news-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .news-actions img {
+        width: 20px;
+        height: 20px;
+    }
+
+    footer {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+        margin-top: 20px;
+    }
+
+    .refresh-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        vertical-align: middle;
+        margin-left: 10px;
+    }
+
+    .refresh-button img {
+        width: 20px;
+        height: 20px;
+    }
+    }
     </style>
 </head>
 <body>
@@ -130,6 +238,14 @@
                     {% endfor %}
                 </ul>
             </nav>
+            <div class="dropdown">
+                <button onclick="toggleDropdown()" class="dropbtn">Menu</button>
+                <div id="myDropdown" class="dropdown-content">
+                    {% for category in categories %}
+                    <a href="{{ url_for('index', category=category) }}">{{ category.capitalize() }}</a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </header>
 
@@ -138,8 +254,8 @@
             <input type="text" placeholder="Search news..." name="search" value="{{ search_query if search_query else '' }}">
             <button type="submit">Search</button>
         </form>
-        
-        <div class="weather-widget"></div>
+
+        <div class="weather-widget">
             {% if weather %}
                 <h3>Weather in {{ location }}</h3>
                 <p>
@@ -153,21 +269,72 @@
             {% endif %}
         </div>
 
-        <h2>{% if search_query %}Search Results for "{{ search_query }}"{% else %}{{ current_category.capitalize() }} News{% endif %}</h2>
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Source</th>
-                <th>Link</th>
-            </tr>
-            {% for item in news %}
-            <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.source }}</td>
-                <td><a href="{{ item.link }}" target="_blank">Read More</a></td>
-            </tr>
-            {% endfor %}
-        </table>
+        <h2>
+            {% if search_query %}Search Results for "{{ search_query }}"{% else %}{{ current_category.capitalize() }} News{% endif %}
+            <button onclick="location.reload();" class="refresh-button" title="Refresh">
+                <img src="/static/refresh-cw.svg" alt="Refresh">
+            </button>
+        </h2>
+
+        {% for item in news %}
+<div class="news-item">
+    <h3><a href="{{ item.link }}" target="_blank">{{ item.title }}</a></h3>
+    <p class="meta">
+        Source: {{ item.source }} | Published: {{ item.published }}
+    </p>
+    <div class="news-actions">
+        <button onclick="shareNews('{{ item.link }}', '{{ item.title }}')" title="Share">
+            <img src="/static/share-2.svg" alt="Share">
+        </button>
+        <button onclick="reportNews('{{ item.link }}','{{ item.title }}')" title="Report">
+            <img src="/static/flag.svg" alt="Report">
+        </button>
     </div>
+</div>
+{% endfor %}
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Positive Vibes. Created by team <b>Murga Dealers</b> for HackBattle (IEEECS VIT)</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("myDropdown");
+            dropdown.classList.toggle("show");
+            console.log("Dropdown toggled. Current classes:", dropdown.className);
+            event.stopPropagation();
+        }
+    
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+        function shareNews(url, title) {
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                url: url
+            }).then(() => {
+                console.log('Thanks for sharing!');
+            })
+            .catch(console.error);
+        } else {
+            prompt("Copy this link to share:", url);
+        }
+    }
+
+    function reportNews(url, title) {
+        window.open('https://google.com', '_blank');
+    }
+
+    </script>
 </body>
 </html>
