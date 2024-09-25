@@ -4,8 +4,15 @@ from flair.models import TextClassifier
 from flair.data import Sentence
 import concurrent.futures
 import urllib.parse
+import requests
+import json
+from functools import wraps
+from flask import request, session
 
 app = Flask(__name__)
+app.secret_key = 'verySecretKey123'
+
+OPENWEATHERMAP_API_KEY = '991b54e03bb9325076f89dd9d696f457'
 
 # Load the sentiment analysis model
 classifier = TextClassifier.load('en-sentiment')
@@ -46,6 +53,54 @@ def fetch_and_analyze_news(url):
 
     return positive_news
 
+def get_location_from_ip():
+    try:
+        response = requests.get('https://ipapi.co/json/')
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('city'), data.get('country')
+    except:
+        pass
+    return None, None
+
+def get_weather(city, country):
+    if not OPENWEATHERMAP_API_KEY:
+        return None
+    
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city},{country}&appid={OPENWEATHERMAP_API_KEY}&units=metric"
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            weather = {
+                'description': data['weather'][0]['description'],
+                'temperature': data['main']['temp'],
+                'icon': data['weather'][0]['icon']
+            }
+            return weather
+    except:
+        pass
+    return None
+
+def with_weather(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'weather' not in session:
+            city, country = get_location_from_ip()
+            if city and country:
+                weather = get_weather(city, country)
+                if weather:
+                    session['weather'] = weather
+                    session['location'] = f"{city}, {country}"
+                else:
+                    session['weather'] = None
+                    session['location'] = None
+            else:
+                session['weather'] = None
+                session['location'] = None
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
 @app.route('/<category>')
 def index(category='general'):
@@ -62,7 +117,8 @@ def index(category='general'):
         return "RSS feed URL not set for this category", 404
 
     positive_news = fetch_and_analyze_news(feed_url)
-    return render_template('index.html', news=positive_news, categories=categories, current_category=category)
+    return render_template('index.html', news=positive_news, categories=categories, current_category=category, search_query=search_query, 
+                           weather=session.get('weather'), location=session.get('location'))
 
 @app.route('/search', methods=['POST'])
 def search():
