@@ -16,3 +16,7 @@ Install the necessary requirements by:
 ```
 pip install -r requirements.txt
 ```
+Now run the app in debug mode:
+```
+python app/main.py
+```
